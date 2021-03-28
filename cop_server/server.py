@@ -6,7 +6,8 @@ import threading
 
 from pygame.time import Clock
 
-from cop_common import DEFAULT_PORT, TICK_RATE, format_address
+from cop_common.network import DEFAULT_PORT, format_address
+from cop_server.consts import TICK_RATE
 
 
 class Server:

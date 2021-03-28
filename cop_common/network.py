@@ -12,7 +12,6 @@ class PacketType(enum.IntEnum):
 DEFAULT_PORT: int = 2677
 TYPE_LENGTH: int = 2
 BUFFER_SIZE: int = 32767 # max length for RAW socket (just in case, you know?)
-TICK_RATE: int = 20
 
 
 def recv_buffered(sock: socket, length: int) -> bytes:

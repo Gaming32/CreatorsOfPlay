@@ -4,9 +4,10 @@ import logging
 import socket
 from typing import Optional
 
-from cop_common import PacketType, decode_packet, encode_packet, format_address
-from cop_serializers import decode_joint_list, encode_joint_list
-from cop_server.player import Player
+from cop_common.network import (PacketType, decode_packet, encode_packet,
+                                format_address)
+from cop_common.player import Player
+from cop_common.serializers import decode_joint_list, encode_joint_list
 
 
 class Client:
