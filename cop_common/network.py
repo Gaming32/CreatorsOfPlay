@@ -34,13 +34,16 @@ def encode_packet(type: PacketType, payload: bytes) -> bytes:
 
 
 def decode_packet(sock: socket) -> tuple[int, bytes]:
-    length = int.from_bytes(sock.recv(sock, 4), 'little', signed=False)
+    len_bytes = sock.recv(4)
+    length = int.from_bytes(len_bytes, 'little', signed=False)
     if length < 2:
-        return (PacketType.INVALID_PACKET, b'')
-    packet_type = PacketType.from_bytes(sock.recv(sock, 2))
+        return PacketType.INVALID_PACKET, len_bytes
+    packet_type = PacketType.from_bytes(sock.recv(2), 'little', signed=False)
     payload = recv_buffered(sock, length - 2)
     return packet_type, payload
 
 
 def format_address(address) -> str:
-    return f'[{address[0]}]:{address[1]}'
+    if ':' in address[0]:
+        return f'[{address[0]}]:{address[1]}'
+    return f'{address[0]}:{address[1]}'

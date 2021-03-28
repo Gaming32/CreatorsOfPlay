@@ -4,6 +4,10 @@ import logging
 import socket
 from typing import Optional
 
+from pymunk.body import Body
+from pymunk.constraints import PinJoint
+from pymunk.vec2d import Vec2d
+
 from cop_common.network import (PacketType, decode_packet, encode_packet,
                                 format_address)
 from cop_common.player import Player
@@ -24,6 +28,21 @@ class Client:
         self.name = format_address(addr)
         self.player = Player()
         logging.info('Client %s connected!', self.name)
+        self.start()
+
+    def start(self):
+        self.player.joints = [
+            Vec2d(0, 0),
+            Vec2d(-50, -50),
+            Vec2d(50, -50),
+            Vec2d(0, 50),
+            Vec2d(-25, 25),
+            Vec2d(25, 25),
+            Vec2d(0, 75),
+        ]
+        self.player.body = Body(100, 100)
+        self.player.body.position = self.player.joints[3]
+        # self.player.joint = PinJoint(self.player.body, self.player.body)
 
     def disconnect(self, reason: str):
         self.sockobj.close()

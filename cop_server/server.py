@@ -5,6 +5,7 @@ import socket
 import threading
 
 from pygame.time import Clock
+from pymunk import Space
 
 from cop_common.network import DEFAULT_PORT, format_address
 from cop_server.consts import TICK_RATE
@@ -16,15 +17,23 @@ class Server:
     display_address: str
     stop_all: bool
 
+    # PyMunk stuff
+    space: Space
+
     def __init__(self, port: int = DEFAULT_PORT) -> None:
         self.sockobj = socket.create_server(('', port), family=socket.AF_INET6, dualstack_ipv6=True)
         self.active_players = set()
         self.display_address = ''
+        # PyMunk setup
+        self.space = Space(threaded=True)
+        self.space.threads = 2
+        self.space.gravity = (0, 900)
 
     def gameloop(self):
         clock = Clock()
         while not self.stop_all:
             tps = 1 / (clock.tick(TICK_RATE) / 1000)
+            self.space.step(0.05)
             for client in tuple(self.active_players):
                 client.handle()
         logging.info('Kicking online players...')
