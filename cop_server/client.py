@@ -5,7 +5,8 @@ import socket
 from typing import Optional
 
 from pymunk.body import Body
-from pymunk.constraints import PinJoint
+from pymunk.constraints import PinJoint, PivotJoint
+from pymunk.shapes import Segment
 from pymunk.vec2d import Vec2d
 
 from cop_common.network import (PacketType, decode_packet, encode_packet,
@@ -40,9 +41,77 @@ class Client:
             Vec2d(25, 25),
             Vec2d(0, 75),
         ]
-        self.player.body = Body(100, 100)
-        self.player.body.position = self.player.joints[3]
-        # self.player.joint = PinJoint(self.player.body, self.player.body)
+        segs = self.player.segments
+        bodies = self.player.bodies
+        pins = self.player.pins
+        joints = self.player.joints
+        for i in range(3): # Create the body and arms
+            bodies.append(Body())
+            bodies[i].position = tuple(joints[3])
+        segs.append(Segment( # Body segment
+            bodies[0],
+            tuple(joints[0]),
+            tuple(joints[6]),
+            5.0
+        ))
+        segs.append(Segment( # Left arm segment
+            bodies[1],
+            tuple(joints[3]),
+            tuple(joints[4]),
+            5.0
+        ))
+        segs.append(Segment( # Right arm segment
+            bodies[2],
+            tuple(joints[3]),
+            tuple(joints[5]),
+            5.0
+        ))
+        segs[0].friction = 0
+        segs[0].mass = 100
+        segs[1].friction = 1
+        segs[1].mass = 8
+        segs[2].friction = 1
+        segs[2].mass = 8
+        pins.append(PivotJoint( # Connect the body to the left arm
+            bodies[0], bodies[1],
+            tuple(joints[3]), tuple(joints[3])
+        ))
+        pins[0].collide_bodies = False
+        pins.append(PivotJoint( # Connect the body to the right arm
+            bodies[0], bodies[2],
+            tuple(joints[3]), tuple(joints[3])
+        ))
+        pins[1].collide_bodies = False
+        for i in range(2): # Create the legs
+            bodies.append(Body())
+            bodies[i].position = tuple(joints[0])
+        segs.append(Segment( # Left leg segment
+            bodies[3],
+            tuple(joints[0]),
+            tuple(joints[1]),
+            5.0
+        ))
+        segs.append(Segment( # Right leg segment
+            bodies[4],
+            tuple(joints[0]),
+            tuple(joints[2]),
+            5.0
+        ))
+        segs[3].friction = 0
+        segs[3].mass = 100
+        segs[4].friction = 1
+        segs[4].mass = 8
+        pins.append(PivotJoint( # Connect the body to the left arm
+            bodies[0], bodies[3],
+            tuple(joints[0]), tuple(joints[0])
+        ))
+        pins[2].collide_bodies = False
+        pins.append(PivotJoint( # Connect the body to the right arm
+            bodies[0], bodies[4],
+            tuple(joints[0]), tuple(joints[0])
+        ))
+        pins[3].collide_bodies = False
+        self.server.space.add(*bodies, *segs, *pins)
 
     def disconnect(self, reason: str):
         self.sockobj.close()
@@ -51,8 +120,23 @@ class Client:
         logging.info('REASON: %s', reason)
 
     def handle(self):
+        joints = self.player.joints
+        bod0 = self.player.bodies[0].position
+        bod1 = self.player.bodies[3].position
+        seg0 = self.player.segments[0]
+        seg1 = self.player.segments[1]
+        seg2 = self.player.segments[2]
+        seg3 = self.player.segments[3]
+        seg4 = self.player.segments[4]
+        joints[3] = seg1.a + bod0
+        joints[0] = seg0.a + bod0
+        joints[6] = seg0.b + bod0
+        joints[4] = seg1.b + bod0
+        joints[5] = seg2.b + bod0
+        joints[1] = seg3.b + bod1
+        joints[2] = seg4.b + bod1
         try:
-            self.sockobj.send(encode_packet(PacketType.UPDATE_JOINTS, encode_joint_list(self.player.joints)))
+            self.sockobj.send(encode_packet(PacketType.UPDATE_JOINTS, encode_joint_list(joints)))
         except ConnectionError as e:
             self.disconnect(f'{e.__class__.__qualname__}: {e}')
         except Exception:

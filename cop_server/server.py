@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import json
 import logging
 import socket
 import threading
 
 from pygame.time import Clock
-from pymunk import Space
+from pymunk import Space, Body
+import pymunk
+from pymunk.shapes import Segment
 
 from cop_common.network import DEFAULT_PORT, format_address
 from cop_server.consts import TICK_RATE
@@ -19,6 +22,7 @@ class Server:
 
     # PyMunk stuff
     space: Space
+    level: dict
 
     def __init__(self, port: int = DEFAULT_PORT) -> None:
         self.sockobj = socket.create_server(('', port), family=socket.AF_INET6, dualstack_ipv6=True)
@@ -27,7 +31,21 @@ class Server:
         # PyMunk setup
         self.space = Space(threaded=True)
         self.space.threads = 2
-        self.space.gravity = (0, 900)
+        self.space.gravity = (0, -200)
+        self.load_level('level')
+
+    def load_level(self, name):
+        with open(name + '.json') as fp:
+            self.level = json.load(fp)
+        lines = self.level['data']
+        body = Body(body_type=pymunk.Body.STATIC)
+        body.position = (0, 0)
+        segments = []
+        for i in range(0, len(lines), 4):
+            segment = Segment(body, (lines[i], lines[i + 1]), (lines[i + 2], lines[i + 3]), 5)
+            segment.friction = 1
+            segments.append(segment)
+        self.space.add(body, *segments)
 
     def gameloop(self):
         clock = Clock()

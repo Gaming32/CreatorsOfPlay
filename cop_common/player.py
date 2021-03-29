@@ -1,6 +1,6 @@
-from pymunk import Vec2d
+from pymunk import Vec2d, Segment
 from pymunk.body import Body
-from pymunk.constraints import PinJoint
+from pymunk.constraints import PivotJoint
 
 
 class Player:
@@ -14,10 +14,12 @@ class Player:
     # + Head
     joints: list[Vec2d]
 
-    body: Body
-    joint: PinJoint
+    bodies: list[Body]
+    segments: list[Segment]
+    pins: list[PivotJoint]
 
     def __init__(self) -> None:
         self.joints = [Vec2d(0, 0) for _ in range(7)]
-        self.body = None # Initialized by server, not used on client
-        self.joint = None # Initialized by server, not used on client
+        self.bodies = [] # Initialized by server, not used on client
+        self.segments = [] # Initialized by server, not used on client
+        self.pins = [] # Initialized by server, not used on client
