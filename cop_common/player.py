@@ -1,4 +1,4 @@
-from pymunk import Vec2d, Segment
+from pymunk import Segment, Vec2d
 from pymunk.body import Body
 from pymunk.constraints import PivotJoint
 

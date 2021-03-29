@@ -6,7 +6,6 @@ import pygame.time
 from pygame import *
 from pygame.locals import *
 
-
 lines = []
 
 

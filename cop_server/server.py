@@ -5,9 +5,9 @@ import logging
 import socket
 import threading
 
-from pygame.time import Clock
-from pymunk import Space, Body
 import pymunk
+from pygame.time import Clock
+from pymunk import Body, Space
 from pymunk.shapes import Segment
 
 from cop_common.network import DEFAULT_PORT, format_address
