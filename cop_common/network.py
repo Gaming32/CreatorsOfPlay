@@ -7,6 +7,9 @@ class PacketType(enum.IntEnum):
     EMPTY_PACKET = 0
     KICK = 1
     UPDATE_JOINTS = 2
+    UPDATE_OTHER_JOINTS = 3
+    SEND_LEVEL = 4
+    PLAYER_MOVE = 5
 
 
 DEFAULT_PORT: int = 2677

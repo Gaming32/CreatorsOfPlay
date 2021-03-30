@@ -53,7 +53,10 @@ class Server:
             tps = 1 / (clock.tick(TICK_RATE) / 1000)
             self.space.step(0.05)
             for client in tuple(self.active_players):
-                client.handle()
+                try:
+                    client.handle()
+                except Exception:
+                    logging.error('Exception on client %s', client.name, exc_info=True)
         logging.info('Kicking online players...')
         for client in tuple(self.active_players):
             client.kick('Server stopped')

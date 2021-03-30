@@ -41,4 +41,8 @@ while running:
 
     pygame.display.update()
 
+for i in range(0, len(lines), 2):
+    lines[i] -= 320
+for i in range(1, len(lines), 2):
+    lines[i] -= 240
 print(lines)
